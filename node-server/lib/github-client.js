@@ -30,9 +30,11 @@ class GitHubClient {
         );
 
         return contributors.map((contributor) => {
+            console.log(JSON.stringify(contributor));
             return {
                 login  : contributor.login,
-                commits: contributor.contributions
+                commits: contributor.contributions,
+                id     : contributor.id
             }
         });
     };

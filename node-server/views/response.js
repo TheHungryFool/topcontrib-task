@@ -1,12 +1,16 @@
 class Response {
-    constructor(httpCode, data) {
+    constructor(httpCode, data, error=0) {
         this.httpCode = httpCode;
         this.data     = data;
+        this.error    = error
     };
 
     render = () => ({
         http_code: this.httpCode,
-        data     : this.data
+        data     : {
+            data : this.data,
+            error: this.error
+        }
     });
 }
 
@@ -26,8 +30,8 @@ class NotAuthorized extends Response {
 
 
 class ServerError extends Response {
-    constructor(data) {
-        super(500, data || {message: 'Something went wrong! (Internal Error)'});
+    constructor(data, error=5000) {
+        super(500, data || {message: 'Something went wrong! (Internal Error)'}, error);
     }
 }
 

@@ -7,7 +7,7 @@ class TopReposController {
     process = async (request, response) => {
         let organization = request.params.organization,
             n            = request.query.n || 10,
-            accessToken  = request.header('X-TOPCONTRIB-ACCESS-TOKEN'),
+            accessToken  = request.header('X-TOPCONTRIB-TOKEN'),
             result;
 
         try {
@@ -15,7 +15,7 @@ class TopReposController {
             result       = new SuccessResponse({repositories: topRepos}).render();
         } catch (e) {
             console.log(e);
-            result = new ServerErrorResponse(e).render();
+            result = new ServerErrorResponse().render();
         }
 
         response.status(result.http_code).json(result.data);
