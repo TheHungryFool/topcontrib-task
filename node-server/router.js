@@ -1,23 +1,31 @@
-let express                   = require('express'),
-    NotFoundErrorResponse     = require('./views/response').NotFound,
-    Log                       = require('./lib/logger'),
-    TopReposController        = require('./controllers/toprepos'),
-    TopContributorsController = require('./controllers/topcontributors'),
-    router                    = express.Router();
-
+let express                   = require('express');
+let NotFoundErrorResponse     = require('./views/response').NotFound;
+let InvalidMethodResponse     = require('./views/response').InvalidMethod;
+let Log                       = require('./lib/logger');
+let TopReposController        = require('./controllers/toprepos');
+let TopContributorsController = require('./controllers/topcontributors');
+let router                    = express.Router();
 
 router.get('/toprepos/:organization', async (request, response) => {
-    await new TopReposController().process(request, response);
-});
+          await new TopReposController().validateAndProcessRequest(request, response);
+      })
+      .get('/topcontributors/:organization/:repository', async (request, response) => {
+          await new TopContributorsController().validateAndProcessRequest(request, response);
+      })
 
-router.get('/topcontributors/:organization/:repository', async (request, response) => {
-    await new TopContributorsController().process(request, response);
-});
-
-router.all('*', (request, response) => {
-    let result = new NotFoundErrorResponse().render();
-    response.status(result.http_code).json(result.data);
-});
+      // send error in case of invalid method / endpoint
+      .all('/toprepos/:organization', async (request, response) => {
+          let result = new InvalidMethodResponse().render();
+          response.status(result.http_code).json(result.data);
+      })
+      .all('/topcontributors/:organization/:repository', async (request, response) => {
+          let result = new InvalidMethodResponse().render();
+          response.status(result.http_code).json(result.data);
+      })
+      .all('*', (request, response) => {
+          let result = new NotFoundErrorResponse().render();
+          response.status(result.http_code).json(result.data);
+      });
 
 
 module.exports = router;

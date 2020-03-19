@@ -1,3 +1,6 @@
+let constants = require("../constants");
+
+
 class Response {
     constructor(httpCode, data, error=0) {
         this.httpCode = httpCode;
@@ -17,35 +20,45 @@ class Response {
 
 class NotFound extends Response {
     constructor() {
-        super(404, {message: 'Requested resource was not found'});
+        let error = constants.ERRORS.NOT_FOUND_ERROR;
+        super(404, {message: error.MESSAGE}, error.CODE);
     }
 }
 
 
 class NotAuthorized extends Response {
-    constructor() {
-        super(401, {message: 'Not authorized to access the resource'});
+    constructor(message) {
+        let error = constants.ERRORS.NOT_AUTHORIZED;
+        super(401, {message: message || error.MESSAGE}, error.CODE);
     }
 }
 
 
 class ServerError extends Response {
-    constructor(data, error=5000) {
-        super(500, data || {message: 'Something went wrong! (Internal Error)'}, error);
+    constructor(data, errorCode) {
+        let error = constants.ERRORS.GENERIC_ERROR;
+        super(500, data || {message: error.MESSAGE}, errorCode || error.CODE);
     }
 }
 
 
 class ValidationError extends Response {
     constructor() {
-        super(400, {message: 'Bad request! Failed to validate payload'});
+        let error = constants.ERRORS.INVALID_REQUEST;
+        super(400, {message: error.MESSAGE}, error.CODE);
     }
 }
 
+class InvalidMethod extends Response {
+    constructor() {
+        let error = constants.ERRORS.INVALID_METHOD;
+        super(405, {message: error.MESSAGE}, error.CODE);
+    }
+}
 
 class Success extends Response {
-    constructor(data) {
-        super(200, data);
+    constructor(data, error=0) {
+        super(200, data, error);
     }
 }
 
@@ -55,5 +68,6 @@ module.exports = {
     ValidationError: ValidationError,
     Success        : Success,
     NotFound       : NotFound,
-    NotAuthorized  : NotAuthorized
+    NotAuthorized  : NotAuthorized,
+    InvalidMethod  : InvalidMethod
 };

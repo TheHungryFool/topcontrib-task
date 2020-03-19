@@ -1,25 +1,25 @@
-let SuccessResponse     = require('../views/response').Success,
-    ServerErrorResponse = require('../views/response').ServerError,
-    GitHubApiClient     = require('../lib/github-client');
+let SuccessResponse = require('../views/response').Success;
+let BaseController  = require('./base');
+let constants       = require('../constants');
+let GitHubApiClient = require('../lib/github-client');
 
 
-class TopReposController {
-    process = async (request, response) => {
+class TopReposController extends BaseController {
+    isValidRequest = (request) => {
+        return request.params.organization
+            && request.params.repository
+            && !isNaN(request.query.m)
+    };
+
+    process = async (request) => {
         let organization = request.params.organization,
             repository   = request.params.repository,
             m            = request.query.m || 10,
-            accessToken  = request.header('X-TOPCONTRIB-TOKEN');
+            accessToken  = request.get(constants.GITHUB_TOKEN_KEY);
 
-        let result;
-        try {
-            let topContribs = await new GitHubApiClient(accessToken).getTopContributors(organization, repository, m);
-            result          = new SuccessResponse({contributors: topContribs}).render();
-        } catch (e) {
-            console.log(e);
-            result = new ServerErrorResponse().render();
-        }
+        let topContribs = await new GitHubApiClient(accessToken).getTopContributors(organization, repository, m);
 
-        response.status(result.http_code).json(result.data);
+        return new SuccessResponse({contributors: topContribs.items}, topContribs.limitReached ? 5005 : 0).render();
     }
 }
 

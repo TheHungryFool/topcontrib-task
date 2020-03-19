@@ -1,24 +1,23 @@
-let SuccessResponse     = require('../views/response').Success,
-    ServerErrorResponse = require('../views/response').ServerError,
-    GitHubApiClient     = require('../lib/github-client');
+let SuccessResponse = require('../views/response').Success;
+let BaseController  = require('./base');
+let constants       = require('../constants');
+let GitHubApiClient = require('../lib/github-client');
 
 
-class TopReposController {
-    process = async (request, response) => {
+class TopReposController extends BaseController {
+    isValidRequest = (request) => {
+        return request.params.organization
+            && !isNaN(request.query.n)
+    };
+
+    process = async (request) => {
         let organization = request.params.organization,
             n            = request.query.n || 10,
-            accessToken  = request.header('X-TOPCONTRIB-TOKEN'),
-            result;
+            accessToken  = request.get(constants.GITHUB_TOKEN_KEY);
 
-        try {
-            let topRepos = await new GitHubApiClient(accessToken).getTopRepositories(organization, n);
-            result       = new SuccessResponse({repositories: topRepos}).render();
-        } catch (e) {
-            console.log(e);
-            result = new ServerErrorResponse().render();
-        }
+        let topRepos = await new GitHubApiClient(accessToken).getTopRepositories(organization, n);
 
-        response.status(result.http_code).json(result.data);
+        return new SuccessResponse({repositories: topRepos.items}, topRepos.limitReached ? 5005 : 0).render();
     }
 }
 
