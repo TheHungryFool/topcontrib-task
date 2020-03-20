@@ -1,5 +1,9 @@
 class Logger {
     static log = (category, message, extra) => {
+        if (process.env.NODE_ENV == "test") {
+            return;
+        }
+
         let replaceErrors = (key, value) => {
             if (value instanceof Error) {
                 let error = {};

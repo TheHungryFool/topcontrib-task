@@ -1,3 +1,5 @@
+// This module contains a number of possible response views whose data will populate the API response
+
 let constants = require("../constants");
 
 

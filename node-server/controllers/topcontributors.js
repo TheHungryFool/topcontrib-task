@@ -19,6 +19,7 @@ class TopReposController extends BaseController {
 
         let topContribs = await new GitHubApiClient(accessToken).getTopContributors(organization, repository, m);
 
+        // if the rate limit is reached, we send a custom code so that the client can display appropriate message
         return new SuccessResponse({contributors: topContribs.items}, topContribs.limitReached ? 5005 : 0).render();
     }
 }

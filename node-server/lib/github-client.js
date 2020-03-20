@@ -9,6 +9,13 @@ class GitHubClient {
         this.baseUrl     = config.githubApiBaseUrl;
     }
 
+    /**
+     * Get top n repositories of an organization (based on the number of forks)
+     * limitReached here means the rate limit does not allow for anymore requests
+     * @param organization
+     * @param n number of repos required
+     * @returns {{items: Array, limitReached: (*|boolean)}}
+     */
     getTopRepositories = async (organization, n) => {
         const ENDPOINT = "/search/repositories";
         let params     = {
@@ -27,6 +34,14 @@ class GitHubClient {
         return repositories;
     };
 
+    /**
+     * Get top m contributors of a repository of an organization (based on the number of commits)
+     * limitReached here means the rate limit does not allow for anymore requests
+     * @param organization
+     * @param repository
+     * @param m number of contributors required
+     * @returns {{items: Array, limitReached: (*|boolean)}}
+     */
     getTopContributors = async (organization, repository, m) => {
         const ENDPOINT = "/repos/" + organization + "/" + repository + "/contributors";
 
@@ -40,6 +55,14 @@ class GitHubClient {
         return contributors;
     };
 
+    /**
+     * A common method that fetches multiple pages and returns the response(s) as an array in an object
+     * limitReached here means the rate limit does not allow for anymore requests
+     * @param endpoint the github api endpoint
+     * @param params the github api request params
+     * @param limit n or m
+     * @returns {{responses: Array, limitReached: boolean}}
+     */
     paginateAndGetData = async (endpoint, params, limit) => {
         const RESULTS_PER_PAGE = limit > 100 ? 100 : limit;
         let url                = new URL(this.baseUrl + endpoint);

@@ -17,6 +17,7 @@ class TopReposController extends BaseController {
 
         let topRepos = await new GitHubApiClient(accessToken).getTopRepositories(organization, n);
 
+        // if the rate limit is reached, we send a custom code so that the client can display appropriate message
         return new SuccessResponse({repositories: topRepos.items}, topRepos.limitReached ? 5005 : 0).render();
     }
 }

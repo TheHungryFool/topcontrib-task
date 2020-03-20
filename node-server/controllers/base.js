@@ -1,4 +1,5 @@
 let helper    = require('./helper');
+let Log       = require('../lib/logger');
 let constants = require('../constants');
 
 
@@ -12,6 +13,7 @@ class BaseController {
             try {
                 result = await this.process(request);
             } catch (error) {
+                Log.critical(String(error));
                 result = helper.getResponseForError(error);
             }
         }
